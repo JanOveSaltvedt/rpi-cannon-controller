@@ -96,7 +96,7 @@ devices = {
 @app.route('/<device_name>/status', methods=['GET'])
 def status(device_name):
     if device_name not in devices:
-        return 404, 'Device not found'
+        return 'Device not found', 404
 
     device = devices[device_name]
     if isinstance(device, Cannon):
@@ -110,13 +110,13 @@ def status(device_name):
             'state': device.state
         })
     else:
-        return 501, 'Status reporting for this device is not implemented'
+        return 'Status reporting for this device is not implemented', 501
 
 
 @app.route('/<device_name>/on', methods=['POST'])
 def on(device_name):
     if device_name not in devices:
-        return 404, 'Device not found'
+        return 'Device not found', 404
 
     resp = {
         'name': device_name,
@@ -129,13 +129,13 @@ def on(device_name):
         device.state = True
         return jsonify(resp)
     else:
-        return 501, 'The on command is only implemented for lights'
+        return 'The on command is only implemented for lights', 501
 
 
 @app.route('/<device_name>/off', methods=['POST'])
 def off(device_name):
     if device_name not in devices:
-        return 404, 'Device not found'
+        return 'Device not found', 404
 
     resp = {
         'name': device_name,
@@ -148,13 +148,13 @@ def off(device_name):
         device.state = False
         return jsonify(resp)
     else:
-        return 501, 'The off command is only implemented for lights'
+        return 'The off command is only implemented for lights', 501
 
 
 @app.route('/<device_name>/fire', methods=['POST'])
 def fire(device_name):
     if device_name not in devices:
-        return 404, 'Device not found'
+        return 'Device not found', 404
 
     resp = {
         'name': device_name,
@@ -165,7 +165,7 @@ def fire(device_name):
     if isinstance(device, Cannon):
         if device.state != Cannon.STATE_LOADED:
             resp['msg'] = 'The cannon is not in the loaded state'
-            return 409, jsonify(resp)
+            return jsonify(resp), 409
 
         delay = request.args.get('delay', default=3, type=int)
 
@@ -187,13 +187,13 @@ def fire(device_name):
             device.fire()
         return jsonify(resp)
     else:
-        return 501, 'The fire command is only implemented for cannons'
+        return 'The fire command is only implemented for cannons', 501
 
 
 @app.route('/<device_name>/reload', methods=['POST'])
 def reload(device_name):
     if device_name not in devices:
-        return 404, 'Device not found'
+        return 'Device not found', 404
 
     resp = {
         'name': device_name,
@@ -204,12 +204,12 @@ def reload(device_name):
     if isinstance(device, Cannon):
         if device.state != Cannon.STATE_USED:
             resp['msg'] = 'The cannon is not in the used state'
-            return 409, jsonify(resp)
+            return jsonify(resp), 409
         resp['msg'] = 'Reloading the cannon!'
         device.reload()
         return jsonify(resp)
     else:
-        return 501, 'The reload command is only implemented for cannons'
+        return 'The reload command is only implemented for cannons', 501
 
 
 if __name__ == '__main__':
